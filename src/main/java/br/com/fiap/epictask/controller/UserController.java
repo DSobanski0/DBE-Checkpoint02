@@ -16,12 +16,13 @@ import br.com.fiap.epictask.model.User;
 import br.com.fiap.epictask.repository.UserRepository;
 
 @Controller
+@RequestMapping("/user")
 public class UserController {
 
 	@Autowired
 	private UserRepository userRepository;
 	
-	@GetMapping(value="/user")
+	@GetMapping
 	public ModelAndView index() {
 		ModelAndView modelAndView = new ModelAndView("users");
 		List<User> users = userRepository.findAll();
@@ -29,15 +30,18 @@ public class UserController {
 		return modelAndView;
 	}
 	
-	@RequestMapping("/user/new")
+	@RequestMapping("/new")
 	public String create(User user) {
 		return "user-form";
 	}
 	
-	@PostMapping(value = "/user")
-	public String save(@Valid User user, BindingResult result) {
-		if (result.hasErrors()) return "user-form";
+	@PostMapping
+	public ModelAndView save(@Valid User user, BindingResult result) {
+		if (result.hasErrors()) return new ModelAndView("user-form");
+		
+		ModelAndView mv = new ModelAndView("users");
 		userRepository.save(user);
-		return "users";
+		mv.addObject("users", userRepository.findAll());
+		return mv;
 	}
 }
